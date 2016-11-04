@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		8CBB1F3B1DCD1A4900D8C047 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CBB1F3A1DCD1A4900D8C047 /* AppDelegate.swift */; };
 		8CBB1F3D1DCD1A4900D8C047 /* MainTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CBB1F3C1DCD1A4900D8C047 /* MainTVC.swift */; };
-		8CBB1F401DCD1A4900D8C047 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8CBB1F3E1DCD1A4900D8C047 /* Main.storyboard */; };
 		8CBB1F421DCD1A4900D8C047 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8CBB1F411DCD1A4900D8C047 /* Assets.xcassets */; };
 		8CBB1F451DCD1A4900D8C047 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8CBB1F431DCD1A4900D8C047 /* LaunchScreen.storyboard */; };
 		CE7456290BE4BB671A3E4E32 /* Pods_OffCom.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C87481FBDAB65834937778F8 /* Pods_OffCom.framework */; };
@@ -20,7 +19,6 @@
 		8CBB1F371DCD1A4900D8C047 /* OffCom.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OffCom.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8CBB1F3A1DCD1A4900D8C047 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		8CBB1F3C1DCD1A4900D8C047 /* MainTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTVC.swift; sourceTree = "<group>"; };
-		8CBB1F3F1DCD1A4900D8C047 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		8CBB1F411DCD1A4900D8C047 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		8CBB1F441DCD1A4900D8C047 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		8CBB1F461DCD1A4900D8C047 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -80,7 +78,6 @@
 			children = (
 				8CBB1F3A1DCD1A4900D8C047 /* AppDelegate.swift */,
 				8CBB1F3C1DCD1A4900D8C047 /* MainTVC.swift */,
-				8CBB1F3E1DCD1A4900D8C047 /* Main.storyboard */,
 				8CBB1F411DCD1A4900D8C047 /* Assets.xcassets */,
 				8CBB1F431DCD1A4900D8C047 /* LaunchScreen.storyboard */,
 				8CBB1F461DCD1A4900D8C047 /* Info.plist */,
@@ -153,7 +150,6 @@
 			files = (
 				8CBB1F451DCD1A4900D8C047 /* LaunchScreen.storyboard in Resources */,
 				8CBB1F421DCD1A4900D8C047 /* Assets.xcassets in Resources */,
-				8CBB1F401DCD1A4900D8C047 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -220,14 +216,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
-		8CBB1F3E1DCD1A4900D8C047 /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				8CBB1F3F1DCD1A4900D8C047 /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
 		8CBB1F431DCD1A4900D8C047 /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
