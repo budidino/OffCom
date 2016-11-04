@@ -17,7 +17,6 @@ class MainTVC: UITableViewController, MCSessionDelegate, MCBrowserViewController
   override func viewDidLoad() {
     super.viewDidLoad()
     title = "OffCom"
-    
     view.backgroundColor = .white
     
     peerID = MCPeerID(displayName: UIDevice.current.name)
@@ -27,7 +26,7 @@ class MainTVC: UITableViewController, MCSessionDelegate, MCBrowserViewController
     let joinButton = UIBarButtonItem(title: "Join", style: .plain, target: self, action: #selector(joinSession))
     self.navigationItem.rightBarButtonItem  = joinButton
     
-    startHosting()
+    startHosting() // everyone is hosting by default
   }
 
   override func didReceiveMemoryWarning() {
@@ -50,15 +49,15 @@ class MainTVC: UITableViewController, MCSessionDelegate, MCBrowserViewController
   
   
   func session(_ session: MCSession, didReceive stream: InputStream, withName streamName: String, fromPeer peerID: MCPeerID) {
-    
+    //
   }
   
   func session(_ session: MCSession, didStartReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, with progress: Progress) {
-    
+    //
   }
   
   func session(_ session:MCSession, didFinishReceivingResourceWithName resourceName:String, fromPeer peerID:MCPeerID, at localURL:URL, withError error:Error?){
-    
+    //
   }
   
   func browserViewControllerDidFinish(_ browserViewController: MCBrowserViewController) {
@@ -74,7 +73,7 @@ class MainTVC: UITableViewController, MCSessionDelegate, MCBrowserViewController
     switch state {
     case MCSessionState.connected:
       print("Connected: \(peerID.displayName)")
-      dismiss(animated: true)
+      dismiss(animated: true) // automatically dismiss join view
       
     case MCSessionState.connecting:
       print("Connecting: \(peerID.displayName)")
