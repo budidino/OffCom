@@ -342,6 +342,11 @@ class MainTVC: UITableViewController, MCSessionDelegate, MCBrowserViewController
   
   override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
     tableView.deselectRow(at: indexPath, animated: true)
+    
+    let msg = messages[indexPath.row]
+    if msg.type == "sound" {
+      playSoundFromData(data: msg.data)
+    }
   }
   
   
@@ -419,12 +424,7 @@ class MainTVC: UITableViewController, MCSessionDelegate, MCBrowserViewController
     else {
       print("I guess sound?")
       self.addMessage(msg: OffComMsg(message: nil, date: Date(), type: "sound", data: data, sender: peerID.displayName))
-      do {
-        try audioPlayer = AVAudioPlayer(data: data)
-        audioPlayer.play()
-      } catch {
-        print("failed")
-      }
+      playSoundFromData(data: data)
     }
   }
   
@@ -433,6 +433,17 @@ class MainTVC: UITableViewController, MCSessionDelegate, MCBrowserViewController
   func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
     if !flag {
       finishRecording(success: false)
+    }
+  }
+  
+  func playSoundFromData(data: Data) {
+    if audioRecorder == nil {
+      do {
+        try audioPlayer = AVAudioPlayer(data: data)
+        audioPlayer.play()
+      } catch {
+        print("failed")
+      }
     }
   }
   
