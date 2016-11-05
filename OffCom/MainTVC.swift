@@ -97,6 +97,37 @@ class MainTVC: UITableViewController, MCSessionDelegate, MCBrowserViewController
     }
   }
   
+  func addMessage(msg: OffComMsg) {
+    DispatchQueue.main.async {
+      self.messages.append(msg)
+      self.tableView.reloadData()
+      
+      let ip = IndexPath(row: self.messages.count-1, section: 0)
+      self.tableView.scrollToRow(at: ip, at: .bottom, animated: true)
+    }
+  }
+  
+  
+  func sendImage(img: UIImage) {
+    print("send image")
+    addMessage(msg: OffComMsg(message: nil, date: Date(), type: "image", image: img))
+    if mcSession.connectedPeers.count > 0 {
+      print("sessions > 0")
+      if let imageData = UIImageJPEGRepresentation(img, 0.75) {
+        print("there is an image")
+        do {
+          print("sending")
+          try mcSession.send(imageData, toPeers: mcSession.connectedPeers, with: .reliable)
+        } catch let error as NSError {
+          print("failed")
+          let ac = UIAlertController(title: "Send error", message: error.localizedDescription, preferredStyle: .alert)
+          ac.addAction(UIAlertAction(title: "OK", style: .default))
+          present(ac, animated: true)
+        }
+      }
+    }
+  }
+  
   
   // MARK: image picker delegate
   
@@ -203,38 +234,6 @@ class MainTVC: UITableViewController, MCSessionDelegate, MCBrowserViewController
       addMessage(msg: OffComMsg(message: "Lost: \(peerID.displayName)", date: Date(), type: "message", image: nil))
     }
   }
-  
-  func addMessage(msg: OffComMsg) {
-    DispatchQueue.main.async {
-      self.messages.append(msg)
-      self.tableView.reloadData()
-      
-      let ip = IndexPath(row: self.messages.count-1, section: 0)
-      self.tableView.scrollToRow(at: ip, at: .bottom, animated: true)
-    }
-  }
-  
-  
-  func sendImage(img: UIImage) {
-    print("send image")
-    addMessage(msg: OffComMsg(message: nil, date: Date(), type: "image", image: img))
-    if mcSession.connectedPeers.count > 0 {
-      print("sessions > 0")
-      if let imageData = UIImageJPEGRepresentation(img, 0.75) {
-        print("there is an image")
-        do {
-          print("sending")
-          try mcSession.send(imageData, toPeers: mcSession.connectedPeers, with: .reliable)
-        } catch let error as NSError {
-          print("failed")
-          let ac = UIAlertController(title: "Send error", message: error.localizedDescription, preferredStyle: .alert)
-          ac.addAction(UIAlertAction(title: "OK", style: .default))
-          present(ac, animated: true)
-        }
-      }
-    }
-  }
-  
   
   func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
     print("got data")
