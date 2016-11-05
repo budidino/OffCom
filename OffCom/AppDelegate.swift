@@ -61,3 +61,18 @@ extension UIViewController {
       navigationController!.navigationBar.frame.size.height
   }
 }
+
+extension UIFont {
+  class func slimWithSize(fontSize: CGFloat) -> UIFont {
+    return UIFont (name: "Avenir-Roman", size: fontSize)!
+  }
+  
+  class func boldWithSize(fontSize: CGFloat) -> UIFont {
+    return UIFont (name: "Avenir-Black", size: fontSize)!
+  }
+}
+
+
+
+
+
