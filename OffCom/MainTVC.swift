@@ -102,7 +102,7 @@ class MainTVC: UITableViewController, MCSessionDelegate, MCBrowserViewController
     tableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 130, right: 0)
     
     buttonPic = UIButton(frame: CGRect(x: 20, y: view.frame.height - 80 - 10, width: 80, height: 80))
-    buttonPic.setTitle("PIC", for: .normal)
+    buttonPic.setTitle("PHOTO", for: .normal)
     buttonPic.backgroundColor = UIColor.init(hexString: "#2980b9")
     buttonPic.layer.cornerRadius = 40
     buttonPic.setTitleColor(UIColor.white, for: .normal)
@@ -120,7 +120,7 @@ class MainTVC: UITableViewController, MCSessionDelegate, MCBrowserViewController
     appNav.view.addSubview(buttonText)
     
     buttonRecord = UIButton(frame: CGRect(x: view.frame.width-80-20, y: view.frame.height - 80 - 10, width: 80, height: 80))
-    buttonRecord.setTitle("REC", for: .normal)
+    buttonRecord.setTitle("SOUND", for: .normal)
     buttonRecord.backgroundColor = UIColor.init(hexString: "#16a085")
     buttonRecord.layer.cornerRadius = 40
     buttonRecord.setTitleColor(UIColor.white, for: .normal)
@@ -173,7 +173,7 @@ class MainTVC: UITableViewController, MCSessionDelegate, MCBrowserViewController
     audioRecorder.stop()
 //    audioRecorder = nil
     
-    buttonRecord.setTitle("REC", for: .normal)
+    buttonRecord.setTitle("SOUND", for: .normal)
     UIView.animate(withDuration: 0.3, animations: {
       self.buttonText.alpha = 1
       self.buttonPic.alpha = 1
