@@ -6,18 +6,20 @@ import UIKit
 import MultipeerConnectivity
 
 class OffComMsg: NSObject {
-  var message = ""
-  var date = Date()
-  var type = "message"
+  var message: String?
+  var date: Date!
+  var type: String!
+  var image: UIImage?
   
-  init(message: String, date: Date, type: String) {
+  init(message: String?, date: Date, type: String, image: UIImage?) {
     self.message = message
     self.date = date
     self.type = type
+    self.image = image
   }
 }
 
-class MainTVC: UITableViewController, MCSessionDelegate, MCBrowserViewControllerDelegate {
+class MainTVC: UITableViewController, MCSessionDelegate, MCBrowserViewControllerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
   
   var peerID: MCPeerID!
   var mcSession: MCSession!
@@ -27,6 +29,11 @@ class MainTVC: UITableViewController, MCSessionDelegate, MCBrowserViewController
   var joinButton: UIButton!
   
   var messages = [OffComMsg]()
+  
+  var buttonPic: UIButton!
+  
+  let picker = UIImagePickerController()
+  var imagePicked: UIImageView!
   
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -52,17 +59,52 @@ class MainTVC: UITableViewController, MCSessionDelegate, MCBrowserViewController
   
   func setupView() {
     tableView.backgroundColor = UIColor.white
-//    tableView.showsVerticalScrollIndicator = false
-    
+
     tableView.register(MessageCell.self, forCellReuseIdentifier: "messageCell")
+    tableView.register(ImageCell.self, forCellReuseIdentifier: "imageCell")
     
     tableView.separatorInset = UIEdgeInsetsMake(0, 0, 0, 0)
     tableView.separatorColor = UIColor.lightGray
     tableView.rowHeight = UITableViewAutomaticDimension
     tableView.estimatedRowHeight = 30
     tableView.tableFooterView = UIView()
+    tableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 130, right: 0)
     
-    addMessage(msg: OffComMsg(message: "Waiting for people to join", date: Date(), type: "message"))
+    buttonPic = UIButton(frame: CGRect(x: 20, y: view.frame.height - 80 - 10, width: 80, height: 80))
+    buttonPic.setTitle("PIC", for: .normal)
+    buttonPic.backgroundColor = UIColor.init(hexString: "#2980b9")
+    buttonPic.layer.cornerRadius = 40
+    buttonPic.setTitleColor(UIColor.white, for: .normal)
+    buttonPic.setTitleColor(UIColor.black, for: .highlighted)
+    buttonPic.addTarget(self, action: #selector(tappedPic), for: .touchUpInside)
+    appNav.view.addSubview(buttonPic)
+    
+    addMessage(msg: OffComMsg(message: "Waiting for people to join", date: Date(), type: "message", image: nil))
+  }
+  
+  // MARK: actions
+  
+  func tappedPic() {
+    print("tapped pic")
+    
+    if UIImagePickerController.isSourceTypeAvailable(.camera) {
+      picker.allowsEditing = false
+      picker.sourceType = .camera
+      picker.cameraCaptureMode = .photo
+      picker.modalPresentationStyle = .fullScreen
+      picker.delegate = self
+      present(picker, animated: true, completion: nil)
+    }
+  }
+  
+  
+  // MARK: image picker delegate
+  
+  func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
+    print("image picked")
+//    imagePicked.image = info[UIImagePickerControllerOriginalImage] as! UIImage?
+    dismiss(animated: true, completion: nil)
+    sendImage(img: info[UIImagePickerControllerOriginalImage] as! UIImage!)
   }
   
 //  override func viewDidAppear(_ animated: Bool) {
@@ -87,7 +129,17 @@ class MainTVC: UITableViewController, MCSessionDelegate, MCBrowserViewController
       let convertedDateString = dateFormatter.string(from: Date())
       
       cell.dateLabel.text = convertedDateString
-//      cell.dateLabel.text = "display date here :)"
+      return cell
+    }
+    
+    if msg.type == "image" {
+      let cell = tableView.dequeueReusableCell(withIdentifier: "imageCell", for: indexPath) as! ImageCell
+      cell.imgView.image = msg.image
+      
+      let dateFormatter = DateFormatter()
+      dateFormatter.dateFormat = "HH:mm:ss a"
+      let convertedDateString = dateFormatter.string(from: Date())
+      cell.dateLabel.text = convertedDateString
       return cell
     }
     
@@ -139,15 +191,16 @@ class MainTVC: UITableViewController, MCSessionDelegate, MCBrowserViewController
     switch state {
     case MCSessionState.connected:
       print("Connected: \(peerID.displayName)")
-      addMessage(msg: OffComMsg(message: "Connected: \(peerID.displayName)", date: Date(), type: "message"))
+      addMessage(msg: OffComMsg(message: "Connected: \(peerID.displayName)", date: Date(), type: "message", image: nil))
       dismiss(animated: true) // automatically dismiss join view
       
     case MCSessionState.connecting:
       print("Connecting: \(peerID.displayName)")
-      addMessage(msg: OffComMsg(message: "Connecting: \(peerID.displayName)", date: Date(), type: "message"))
+      addMessage(msg: OffComMsg(message: "Connecting: \(peerID.displayName)", date: Date(), type: "message", image: nil))
       
     case MCSessionState.notConnected:
       print("Failed to connect to: \(peerID.displayName)")
+      addMessage(msg: OffComMsg(message: "Lost: \(peerID.displayName)", date: Date(), type: "message", image: nil))
     }
   }
   
@@ -155,16 +208,25 @@ class MainTVC: UITableViewController, MCSessionDelegate, MCBrowserViewController
     DispatchQueue.main.async {
       self.messages.append(msg)
       self.tableView.reloadData()
+      
+      let ip = IndexPath(row: self.messages.count-1, section: 0)
+      self.tableView.scrollToRow(at: ip, at: .bottom, animated: true)
     }
   }
   
   
   func sendImage(img: UIImage) {
+    print("send image")
+    addMessage(msg: OffComMsg(message: nil, date: Date(), type: "image", image: img))
     if mcSession.connectedPeers.count > 0 {
-      if let imageData = UIImagePNGRepresentation(img) {
+      print("sessions > 0")
+      if let imageData = UIImageJPEGRepresentation(img, 0.75) {
+        print("there is an image")
         do {
+          print("sending")
           try mcSession.send(imageData, toPeers: mcSession.connectedPeers, with: .reliable)
         } catch let error as NSError {
+          print("failed")
           let ac = UIAlertController(title: "Send error", message: error.localizedDescription, preferredStyle: .alert)
           ac.addAction(UIAlertAction(title: "OK", style: .default))
           present(ac, animated: true)
@@ -175,9 +237,12 @@ class MainTVC: UITableViewController, MCSessionDelegate, MCBrowserViewController
   
   
   func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
+    print("got data")
     if let image = UIImage(data: data) {
-      DispatchQueue.main.async { [unowned self] in
-        // do something with the image
+      print("data is an image")
+      DispatchQueue.main.async {
+        print("displaying data")
+        self.addMessage(msg: OffComMsg(message: nil, date: Date(), type: "image", image: image))
       }
     }
   }

@@ -37,5 +37,7 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>OffCom needs access to your camera to send your snaps</string>
 </dict>
 </plist>

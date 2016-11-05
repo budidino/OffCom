@@ -12,6 +12,7 @@
 		8CBB1F421DCD1A4900D8C047 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8CBB1F411DCD1A4900D8C047 /* Assets.xcassets */; };
 		8CBB1F451DCD1A4900D8C047 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8CBB1F431DCD1A4900D8C047 /* LaunchScreen.storyboard */; };
 		8CCEBCB01DCD5C9900B4F028 /* MessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CCEBCAF1DCD5C9900B4F028 /* MessageCell.swift */; };
+		8CCEBCB31DCD81DF00B4F028 /* ImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CCEBCB21DCD81DF00B4F028 /* ImageCell.swift */; };
 		CE7456290BE4BB671A3E4E32 /* Pods_OffCom.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C87481FBDAB65834937778F8 /* Pods_OffCom.framework */; };
 /* End PBXBuildFile section */
 
@@ -24,6 +25,7 @@
 		8CBB1F441DCD1A4900D8C047 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		8CBB1F461DCD1A4900D8C047 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8CCEBCAF1DCD5C9900B4F028 /* MessageCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MessageCell.swift; path = ui/MessageCell.swift; sourceTree = "<group>"; };
+		8CCEBCB21DCD81DF00B4F028 /* ImageCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ImageCell.swift; path = ui/ImageCell.swift; sourceTree = "<group>"; };
 		C87481FBDAB65834937778F8 /* Pods_OffCom.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_OffCom.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E894FA27168671CE2E021913 /* Pods-OffCom.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OffCom.release.xcconfig"; path = "Pods/Target Support Files/Pods-OffCom/Pods-OffCom.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -92,6 +94,7 @@
 			isa = PBXGroup;
 			children = (
 				8CCEBCAF1DCD5C9900B4F028 /* MessageCell.swift */,
+				8CCEBCB21DCD81DF00B4F028 /* ImageCell.swift */,
 			);
 			name = ui;
 			sourceTree = "<group>";
@@ -220,6 +223,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8CBB1F3D1DCD1A4900D8C047 /* MainTVC.swift in Sources */,
+				8CCEBCB31DCD81DF00B4F028 /* ImageCell.swift in Sources */,
 				8CCEBCB01DCD5C9900B4F028 /* MessageCell.swift in Sources */,
 				8CBB1F3B1DCD1A4900D8C047 /* AppDelegate.swift in Sources */,
 			);
