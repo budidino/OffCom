@@ -31,6 +31,7 @@ class MainTVC: UITableViewController, MCSessionDelegate, MCBrowserViewController
   var messages = [OffComMsg]()
   
   var buttonPic: UIButton!
+  var buttonText: UIButton!
   
   let picker = UIImagePickerController()
   var imagePicked: UIImageView!
@@ -79,6 +80,15 @@ class MainTVC: UITableViewController, MCSessionDelegate, MCBrowserViewController
     buttonPic.addTarget(self, action: #selector(tappedPic), for: .touchUpInside)
     appNav.view.addSubview(buttonPic)
     
+    buttonText = UIButton(frame: CGRect(x: view.frame.width/2-40, y: view.frame.height - 80 - 10, width: 80, height: 80))
+    buttonText.setTitle("TEXT", for: .normal)
+    buttonText.backgroundColor = UIColor.init(hexString: "#c0392b")
+    buttonText.layer.cornerRadius = 40
+    buttonText.setTitleColor(UIColor.white, for: .normal)
+    buttonText.setTitleColor(UIColor.black, for: .highlighted)
+    buttonText.addTarget(self, action: #selector(tappedText), for: .touchUpInside)
+    appNav.view.addSubview(buttonText)
+    
     addMessage(msg: OffComMsg(message: "Waiting for people to join", date: Date(), type: "message", image: nil))
   }
   
@@ -95,6 +105,23 @@ class MainTVC: UITableViewController, MCSessionDelegate, MCBrowserViewController
       picker.delegate = self
       present(picker, animated: true, completion: nil)
     }
+  }
+  
+  func tappedText() {
+    print("tapped text")
+    
+    let alert = UIAlertController(title: nil, message: "send message", preferredStyle: .alert)
+    alert.addTextField { (textField) in
+      textField.text = ""
+    }
+    
+    alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { (_) in
+      let textField = alert.textFields![0]
+      print("Text field: \(textField.text!)")
+      self.addMessage(msg: OffComMsg(message: "ME: \(textField.text!)", date: Date(), type: "message", image: nil))
+    }))
+    
+    self.present(alert, animated: true, completion: nil)
   }
   
   func addMessage(msg: OffComMsg) {
@@ -157,7 +184,7 @@ class MainTVC: UITableViewController, MCSessionDelegate, MCBrowserViewController
       
       let dateFormatter = DateFormatter()
       dateFormatter.dateFormat = "HH:mm:ss a"
-      let convertedDateString = dateFormatter.string(from: Date())
+      let convertedDateString = dateFormatter.string(from: msg.date)
       
       cell.dateLabel.text = convertedDateString
       return cell
@@ -169,7 +196,7 @@ class MainTVC: UITableViewController, MCSessionDelegate, MCBrowserViewController
       
       let dateFormatter = DateFormatter()
       dateFormatter.dateFormat = "HH:mm:ss a"
-      let convertedDateString = dateFormatter.string(from: Date())
+      let convertedDateString = dateFormatter.string(from: msg.date)
       cell.dateLabel.text = convertedDateString
       return cell
     }
