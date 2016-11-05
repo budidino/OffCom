@@ -117,8 +117,7 @@ class MainTVC: UITableViewController, MCSessionDelegate, MCBrowserViewController
     
     alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { (_) in
       let textField = alert.textFields![0]
-      print("Text field: \(textField.text!)")
-      self.addMessage(msg: OffComMsg(message: "ME: \(textField.text!)", date: Date(), type: "message", image: nil))
+      self.sendText(txt: textField.text!)
     }))
     
     self.present(alert, animated: true, completion: nil)
@@ -139,12 +138,26 @@ class MainTVC: UITableViewController, MCSessionDelegate, MCBrowserViewController
     print("send image")
     addMessage(msg: OffComMsg(message: nil, date: Date(), type: "image", image: img))
     if mcSession.connectedPeers.count > 0 {
-      print("sessions > 0")
       if let imageData = UIImageJPEGRepresentation(img, 0.75) {
-        print("there is an image")
         do {
-          print("sending")
           try mcSession.send(imageData, toPeers: mcSession.connectedPeers, with: .reliable)
+        } catch let error as NSError {
+          print("failed")
+          let ac = UIAlertController(title: "Send error", message: error.localizedDescription, preferredStyle: .alert)
+          ac.addAction(UIAlertAction(title: "OK", style: .default))
+          present(ac, animated: true)
+        }
+      }
+    }
+  }
+  
+  func sendText(txt: String) {
+    print("send text")
+    addMessage(msg: OffComMsg(message: "ME: \(txt)", date: Date(), type: "message", image: nil))
+    if mcSession.connectedPeers.count > 0 {
+      if let textData = txt.data(using: .utf8) {
+        do {
+          try mcSession.send(textData, toPeers: mcSession.connectedPeers, with: .reliable)
         } catch let error as NSError {
           print("failed")
           let ac = UIAlertController(title: "Send error", message: error.localizedDescription, preferredStyle: .alert)
@@ -172,7 +185,6 @@ class MainTVC: UITableViewController, MCSessionDelegate, MCBrowserViewController
   // MARK: - UITableViewDataSource
   
   override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-    print("messages.count = \(messages.count)")
     return messages.count
   }
   
@@ -269,6 +281,14 @@ class MainTVC: UITableViewController, MCSessionDelegate, MCBrowserViewController
       DispatchQueue.main.async {
         print("displaying data")
         self.addMessage(msg: OffComMsg(message: nil, date: Date(), type: "image", image: image))
+      }
+    }
+    
+    else if let str = String.init(data: data, encoding: .utf8) {
+      print("data is a string")
+      DispatchQueue.main.async {
+        print("displaying data")
+        self.addMessage(msg: OffComMsg(message: "\(peerID.displayName): \(str)", date: Date(), type: "message", image: nil))
       }
     }
   }
