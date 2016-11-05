@@ -39,5 +39,7 @@
 	</array>
 	<key>NSCameraUsageDescription</key>
 	<string>OffCom needs access to your camera to send your snaps</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>OffCom needs access to your microphone to send audio messages</string>
 </dict>
 </plist>

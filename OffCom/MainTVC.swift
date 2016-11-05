@@ -4,22 +4,25 @@
 
 import UIKit
 import MultipeerConnectivity
+import AVFoundation
 
 class OffComMsg: NSObject {
   var message: String?
   var date: Date!
   var type: String!
-  var image: UIImage?
+  var data: Data!
+  var sender: String!
   
-  init(message: String?, date: Date, type: String, image: UIImage?) {
+  init(message: String?, date: Date, type: String, data: Data?, sender: String?) {
     self.message = message
     self.date = date
     self.type = type
-    self.image = image
+    self.data = data
+    self.sender = sender
   }
 }
 
-class MainTVC: UITableViewController, MCSessionDelegate, MCBrowserViewControllerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+class MainTVC: UITableViewController, MCSessionDelegate, MCBrowserViewControllerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, AVAudioRecorderDelegate {
   
   var peerID: MCPeerID!
   var mcSession: MCSession!
@@ -32,6 +35,11 @@ class MainTVC: UITableViewController, MCSessionDelegate, MCBrowserViewController
   
   var buttonPic: UIButton!
   var buttonText: UIButton!
+  var buttonRecord: UIButton!
+  
+  var recordingSession: AVAudioSession!
+  var audioRecorder: AVAudioRecorder!
+  var audioPlayer: AVAudioPlayer!
   
   let picker = UIImagePickerController()
   var imagePicked: UIImageView!
@@ -51,6 +59,27 @@ class MainTVC: UITableViewController, MCSessionDelegate, MCBrowserViewController
     startHosting() // everyone is hosting by default
     
     setupView()
+    requestRecordingPermission()
+  }
+  
+  func requestRecordingPermission() {
+    recordingSession = AVAudioSession.sharedInstance()
+    
+    do {
+      try recordingSession.setCategory(AVAudioSessionCategoryPlayAndRecord, with: .defaultToSpeaker)
+      try recordingSession.setActive(true)
+      recordingSession.requestRecordPermission() { [unowned self] allowed in
+        DispatchQueue.main.async {
+          if allowed {
+            print("allowed")
+          } else {
+            print("can't record")
+          }
+        }
+      }
+    } catch {
+      // failed to record!
+    }
   }
 
   override func didReceiveMemoryWarning() {
@@ -63,6 +92,7 @@ class MainTVC: UITableViewController, MCSessionDelegate, MCBrowserViewController
 
     tableView.register(MessageCell.self, forCellReuseIdentifier: "messageCell")
     tableView.register(ImageCell.self, forCellReuseIdentifier: "imageCell")
+    tableView.register(SoundCell.self, forCellReuseIdentifier: "soundCell")
     
     tableView.separatorInset = UIEdgeInsetsMake(0, 0, 0, 0)
     tableView.separatorColor = UIColor.lightGray
@@ -89,10 +119,80 @@ class MainTVC: UITableViewController, MCSessionDelegate, MCBrowserViewController
     buttonText.addTarget(self, action: #selector(tappedText), for: .touchUpInside)
     appNav.view.addSubview(buttonText)
     
-    addMessage(msg: OffComMsg(message: "Waiting for people to join", date: Date(), type: "message", image: nil))
+    buttonRecord = UIButton(frame: CGRect(x: view.frame.width-80-20, y: view.frame.height - 80 - 10, width: 80, height: 80))
+    buttonRecord.setTitle("REC", for: .normal)
+    buttonRecord.backgroundColor = UIColor.init(hexString: "#16a085")
+    buttonRecord.layer.cornerRadius = 40
+    buttonRecord.setTitleColor(UIColor.white, for: .normal)
+    buttonRecord.setTitleColor(UIColor.black, for: .highlighted)
+    buttonRecord.addTarget(self, action: #selector(tappedRecord), for: .touchUpInside)
+    appNav.view.addSubview(buttonRecord)
+    
+    addMessage(msg: OffComMsg(message: "Waiting for people to join", date: Date(), type: "message", data: nil, sender: nil))
   }
   
   // MARK: actions
+  
+  func startRecording() {
+    let audioFilename = getDocumentsDirectory().appendingPathComponent("recording.m4a")
+    
+    let settings = [
+      AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
+      AVSampleRateKey: 12000,
+      AVNumberOfChannelsKey: 1,
+      AVEncoderAudioQualityKey: AVAudioQuality.medium.rawValue
+    ]
+    
+    do {
+      audioRecorder = try AVAudioRecorder(url: audioFilename, settings: settings)
+      audioRecorder.delegate = self
+      audioRecorder.record()
+      
+      buttonRecord.setTitle("STOP", for: .normal)
+      UIView.animate(withDuration: 0.3, animations: { 
+        self.buttonText.alpha = 0.2
+        self.buttonPic.alpha = 0.2
+        self.buttonText.isUserInteractionEnabled = false
+        self.buttonPic.isUserInteractionEnabled = false
+      })
+    } catch {
+      finishRecording(success: false)
+    }
+  }
+  
+  func tappedRecord() {
+    print("tapped rec")
+    if audioRecorder == nil {
+      startRecording()
+    } else {
+      finishRecording(success: true)
+    }
+  }
+  
+  func finishRecording(success: Bool) {
+    audioRecorder.stop()
+//    audioRecorder = nil
+    
+    buttonRecord.setTitle("REC", for: .normal)
+    UIView.animate(withDuration: 0.3, animations: {
+      self.buttonText.alpha = 1
+      self.buttonPic.alpha = 1
+      self.buttonText.isUserInteractionEnabled = true
+      self.buttonPic.isUserInteractionEnabled = true
+    })
+    
+    if success {
+      do {
+        try sendSound(sound: Data(contentsOf: audioRecorder.url))
+        audioRecorder = nil
+      } catch {
+        //
+      }
+    } else {
+      print("failed recording")
+      // recording failed :(
+    }
+  }
   
   func tappedPic() {
     print("tapped pic")
@@ -133,27 +233,40 @@ class MainTVC: UITableViewController, MCSessionDelegate, MCBrowserViewController
     }
   }
   
+  func sendSound(sound: Data) {
+    print("send sound")
+    addMessage(msg: OffComMsg(message: nil, date: Date(), type: "sound", data: sound, sender: "ME"))
+    if mcSession.connectedPeers.count > 0 {
+      do {
+        try mcSession.send(sound, toPeers: mcSession.connectedPeers, with: .reliable)
+      } catch let error as NSError {
+        print("failed")
+        let ac = UIAlertController(title: "Send error", message: error.localizedDescription, preferredStyle: .alert)
+        ac.addAction(UIAlertAction(title: "OK", style: .default))
+        present(ac, animated: true)
+      }
+    }
+  }
   
   func sendImage(img: UIImage) {
     print("send image")
-    addMessage(msg: OffComMsg(message: nil, date: Date(), type: "image", image: img))
+    let imageData = UIImageJPEGRepresentation(img, 0.75)!
+    addMessage(msg: OffComMsg(message: nil, date: Date(), type: "image", data: imageData, sender: "ME"))
     if mcSession.connectedPeers.count > 0 {
-      if let imageData = UIImageJPEGRepresentation(img, 0.75) {
-        do {
-          try mcSession.send(imageData, toPeers: mcSession.connectedPeers, with: .reliable)
-        } catch let error as NSError {
-          print("failed")
-          let ac = UIAlertController(title: "Send error", message: error.localizedDescription, preferredStyle: .alert)
-          ac.addAction(UIAlertAction(title: "OK", style: .default))
-          present(ac, animated: true)
-        }
+      do {
+        try mcSession.send(imageData, toPeers: mcSession.connectedPeers, with: .reliable)
+      } catch let error as NSError {
+        print("failed")
+        let ac = UIAlertController(title: "Send error", message: error.localizedDescription, preferredStyle: .alert)
+        ac.addAction(UIAlertAction(title: "OK", style: .default))
+        present(ac, animated: true)
       }
     }
   }
   
   func sendText(txt: String) {
     print("send text")
-    addMessage(msg: OffComMsg(message: "ME: \(txt)", date: Date(), type: "message", image: nil))
+    addMessage(msg: OffComMsg(message: "ME: \(txt)", date: Date(), type: "message", data: nil, sender: "ME"))
     if mcSession.connectedPeers.count > 0 {
       if let textData = txt.data(using: .utf8) {
         do {
@@ -204,7 +317,18 @@ class MainTVC: UITableViewController, MCSessionDelegate, MCBrowserViewController
     
     if msg.type == "image" {
       let cell = tableView.dequeueReusableCell(withIdentifier: "imageCell", for: indexPath) as! ImageCell
-      cell.imgView.image = msg.image
+      cell.imgView.image = UIImage(data: msg.data)
+      
+      let dateFormatter = DateFormatter()
+      dateFormatter.dateFormat = "HH:mm:ss a"
+      let convertedDateString = dateFormatter.string(from: msg.date)
+      cell.dateLabel.text = convertedDateString
+      return cell
+    }
+    
+    if msg.type == "sound" {
+      let cell = tableView.dequeueReusableCell(withIdentifier: "soundCell", for: indexPath) as! SoundCell
+      cell.senderLabel.text = msg.sender
       
       let dateFormatter = DateFormatter()
       dateFormatter.dateFormat = "HH:mm:ss a"
@@ -261,26 +385,26 @@ class MainTVC: UITableViewController, MCSessionDelegate, MCBrowserViewController
     switch state {
     case MCSessionState.connected:
       print("Connected: \(peerID.displayName)")
-      addMessage(msg: OffComMsg(message: "Connected: \(peerID.displayName)", date: Date(), type: "message", image: nil))
+      addMessage(msg: OffComMsg(message: "Connected: \(peerID.displayName)", date: Date(), type: "message", data: nil, sender: nil))
       dismiss(animated: true) // automatically dismiss join view
       
     case MCSessionState.connecting:
       print("Connecting: \(peerID.displayName)")
-      addMessage(msg: OffComMsg(message: "Connecting: \(peerID.displayName)", date: Date(), type: "message", image: nil))
+      addMessage(msg: OffComMsg(message: "Connecting: \(peerID.displayName)", date: Date(), type: "message", data: nil, sender: nil))
       
     case MCSessionState.notConnected:
       print("Failed to connect to: \(peerID.displayName)")
-      addMessage(msg: OffComMsg(message: "Lost: \(peerID.displayName)", date: Date(), type: "message", image: nil))
+      addMessage(msg: OffComMsg(message: "Lost: \(peerID.displayName)", date: Date(), type: "message", data: nil, sender: nil))
     }
   }
   
   func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
     print("got data")
-    if let image = UIImage(data: data) {
+    if UIImage(data: data) != nil {
       print("data is an image")
       DispatchQueue.main.async {
         print("displaying data")
-        self.addMessage(msg: OffComMsg(message: nil, date: Date(), type: "image", image: image))
+        self.addMessage(msg: OffComMsg(message: nil, date: Date(), type: "image", data: data, sender: peerID.displayName))
       }
     }
     
@@ -288,9 +412,36 @@ class MainTVC: UITableViewController, MCSessionDelegate, MCBrowserViewController
       print("data is a string")
       DispatchQueue.main.async {
         print("displaying data")
-        self.addMessage(msg: OffComMsg(message: "\(peerID.displayName): \(str)", date: Date(), type: "message", image: nil))
+        self.addMessage(msg: OffComMsg(message: "\(peerID.displayName): \(str)", date: Date(), type: "message", data: nil, sender: peerID.displayName))
       }
     }
+    
+    else {
+      print("I guess sound?")
+      self.addMessage(msg: OffComMsg(message: nil, date: Date(), type: "sound", data: data, sender: peerID.displayName))
+      do {
+        try audioPlayer = AVAudioPlayer(data: data)
+        audioPlayer.play()
+      } catch {
+        print("failed")
+      }
+    }
+  }
+  
+  // MARK: audio delegate
+  
+  func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
+    if !flag {
+      finishRecording(success: false)
+    }
+  }
+  
+  // MARK: helpers
+  
+  func getDocumentsDirectory() -> URL {
+    let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+    let documentsDirectory = paths[0]
+    return documentsDirectory
   }
 
 }
