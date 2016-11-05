@@ -229,7 +229,7 @@ class MainTVC: UITableViewController, MCSessionDelegate, MCBrowserViewController
       self.tableView.reloadData()
       
       let ip = IndexPath(row: self.messages.count-1, section: 0)
-      self.tableView.scrollToRow(at: ip, at: .bottom, animated: true)
+      self.tableView.scrollToRow(at: ip, at: .bottom, animated: false)
     }
   }
   
