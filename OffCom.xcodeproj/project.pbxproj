@@ -349,7 +349,7 @@
 				INFOPLIST_FILE = OffCom/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.exevio.OffCom;
+				PRODUCT_BUNDLE_IDENTIFIER = com.exevio.offcom;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "f6e6bd74-6c59-45b9-ac27-b5cb821af138";
 				PROVISIONING_PROFILE_SPECIFIER = "Exevio DEV";
@@ -366,7 +366,7 @@
 				INFOPLIST_FILE = OffCom/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.exevio.OffCom;
+				PRODUCT_BUNDLE_IDENTIFIER = com.exevio.offcom;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "f6e6bd74-6c59-45b9-ac27-b5cb821af138";
 				PROVISIONING_PROFILE_SPECIFIER = "Exevio DEV";
